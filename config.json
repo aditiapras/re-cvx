@@ -1,0 +1,40 @@
+[
+  {
+    "step_number": 1,
+    "title": "Pendaftaran",
+    "description": "Pendaftaran mahasiswa baru",
+    "field": [
+      {
+        "label": "Nama",
+        "type": "text",
+        "placeholder": "Masukkan nama lengkap",
+        "required": true,
+        "error_message": "Nama harus diisi"
+      },
+      {
+        "label": "Tanggal Mulai",
+        "type": "date",
+        "placeholder": "Masukkan tanggal mulai",
+        "required": true,
+        "error_message": "Tanggal mulai harus diisi"
+      },
+      {
+        "label": "Group",
+        "type": "select",
+        "options": [
+          {
+            "label": "Group 1",
+            "value": "group1"
+          },
+          {
+            "label": "Group 2",
+            "value": "group2"
+          }
+        ],
+        "placeholder": "Masukkan nama lengkap",
+        "required": true,
+        "error_message": "Group harus dipilih"
+      }
+    ]
+  }
+]
