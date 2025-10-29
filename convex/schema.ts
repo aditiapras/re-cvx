@@ -214,4 +214,25 @@ export default defineSchema({
     skhus: v.optional(v.string()),
     graduationCertificate: v.optional(v.string()),
   }).index("by_participantId", ["participantId"]),
+
+  // Informasi (Umum, Galeri, Artikel/Blog)
+  informasi: defineTable({
+    type: v.string(), // 'umum' | 'galeri' | 'artikel' (enforce in mutations)
+    title: v.string(),
+    description: v.optional(v.string()), // enforce required for 'umum' in mutations
+    status: v.string(), // 'draft' | 'published' (enforce in mutations)
+    slug: v.string(), // UNIQUE (enforce in mutations)
+    content: v.optional(v.any()), // PlateJS JSON value for 'artikel'
+    coverImageId: v.optional(v.id("_storage")), // for 'artikel'
+    imageIds: v.optional(v.array(v.id("_storage"))), // for 'galeri'
+    metaTitle: v.optional(v.string()),
+    metaDescription: v.optional(v.string()),
+    metaImageId: v.optional(v.id("_storage")),
+    createdAt: v.string(), // ISO string
+    updatedAt: v.string(), // ISO string
+    authorId: v.optional(v.id("users")),
+  })
+    .index("by_type", ["type"]) // filter by type
+    .index("by_status_createdAt", ["status", "createdAt"]) // list by status and time
+    .index("by_slug", ["slug"]), // support uniqueness checks
 });
