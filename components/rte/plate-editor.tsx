@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Plate } from "platejs/react";
 import { Editor } from "@/components/ui/editor";
 import { FixedToolbar } from "@/components/ui/fixed-toolbar";
@@ -16,6 +16,19 @@ interface PlateEditorProps {
   readOnly?: boolean;
 }
 
+// Validate editor value structure
+function validateEditorValue(value: any[]): boolean {
+  if (!Array.isArray(value)) return false;
+  if (value.length === 0) return false;
+  
+  return value.every(node => 
+    node && 
+    typeof node === 'object' && 
+    typeof node.type === 'string' && 
+    Array.isArray(node.children)
+  );
+}
+
 export function PlateEditor({
   value,
   onChange,
@@ -23,33 +36,74 @@ export function PlateEditor({
   readOnly = false,
 }: PlateEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const editor = useCreateEditor({ value });
+  const [isEditorReady, setIsEditorReady] = useState(false);
+  
+  // Ensure we have a valid value
+  const validValue = value && validateEditorValue(value) 
+    ? value 
+    : [{ type: "p", children: [{ text: "" }] }];
+  
+  const editor = useCreateEditor({ value: validValue });
+
+  // Wait for editor to be properly initialized
+  useEffect(() => {
+    if (editor) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        setIsEditorReady(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [editor]);
 
   // Handle onChange by monitoring editor.children
   useEffect(() => {
-    if (!editor || !onChange) return;
+    if (!editor || !onChange || !isEditorReady) return;
 
     // Call onChange whenever editor content changes
     const handleChange = () => {
-      onChange(editor.children);
+      try {
+        onChange(editor.children);
+      } catch (error) {
+        console.error("Error in onChange handler:", error);
+      }
     };
 
     // Listen to selection changes which indicate content changes
     const interval = setInterval(() => {
-      if (JSON.stringify(editor.children) !== JSON.stringify(value)) {
-        handleChange();
+      try {
+        if (JSON.stringify(editor.children) !== JSON.stringify(validValue)) {
+          handleChange();
+        }
+      } catch (error) {
+        console.error("Error comparing editor content:", error);
       }
     }, 500);
 
     return () => clearInterval(interval);
-  }, [editor, onChange, value]);
+  }, [editor, onChange, validValue, isEditorReady]);
+
+  // Don't render until editor is ready
+  if (!editor || !isEditorReady) {
+    return (
+      <div className="min-h-[500px] flex items-center justify-center text-muted-foreground">
+        Loading editor...
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="relative">
-      <Plate editor={editor}>
-        <FixedToolbar>
-          <FixedToolbarButtons />
-        </FixedToolbar>
+      <Plate 
+        key={`editor-${readOnly ? 'readonly' : 'editable'}`}
+        editor={editor}
+      >
+        {!readOnly && (
+          <FixedToolbar>
+            <FixedToolbarButtons />
+          </FixedToolbar>
+        )}
 
         <Editor
           variant="default"
@@ -58,9 +112,11 @@ export function PlateEditor({
           className="min-h-[500px]"
         />
 
-        <FloatingToolbar>
-          <FloatingToolbarButtons />
-        </FloatingToolbar>
+        {!readOnly && (
+          <FloatingToolbar>
+            <FloatingToolbarButtons />
+          </FloatingToolbar>
+        )}
       </Plate>
     </div>
   );

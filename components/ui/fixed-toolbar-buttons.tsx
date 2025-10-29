@@ -59,19 +59,19 @@ export function FixedToolbarButtons() {
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <ExportToolbarButton>
               <ArrowUpToLineIcon />
             </ExportToolbarButton>
 
             <ImportToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           <ToolbarGroup>
             <InsertToolbarButton />
@@ -123,47 +123,47 @@ export function FixedToolbarButtons() {
 
             <NumberedListToolbarButton />
             <BulletedListToolbarButton />
-            <TodoListToolbarButton />
-            <ToggleToolbarButton />
+            {/* <TodoListToolbarButton /> */}
+            {/* <ToggleToolbarButton /> */}
           </ToolbarGroup>
 
           <ToolbarGroup>
             <LinkToolbarButton />
             <TableToolbarButton />
-            <EmojiToolbarButton />
+            {/* <EmojiToolbarButton /> */}
           </ToolbarGroup>
 
           <ToolbarGroup>
             <MediaToolbarButton nodeType={KEYS.img} />
-            <MediaToolbarButton nodeType={KEYS.video} />
-            <MediaToolbarButton nodeType={KEYS.audio} />
-            <MediaToolbarButton nodeType={KEYS.file} />
+            {/* <MediaToolbarButton nodeType={KEYS.video} /> */}
+            {/* <MediaToolbarButton nodeType={KEYS.audio} /> */}
+            {/* <MediaToolbarButton nodeType={KEYS.file} /> */}
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <LineHeightToolbarButton />
             <OutdentToolbarButton />
             <IndentToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <MoreToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
         </>
       )}
 
       <div className="grow" />
 
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <MarkToolbarButton nodeType={KEYS.highlight} tooltip="Highlight">
           <HighlighterIcon />
         </MarkToolbarButton>
         <CommentToolbarButton />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
 
-      <ToolbarGroup>
+      {/* <ToolbarGroup>
         <ModeToolbarButton />
-      </ToolbarGroup>
+      </ToolbarGroup> */}
     </div>
   );
 }

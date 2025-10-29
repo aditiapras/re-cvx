@@ -17,6 +17,14 @@ interface UseCreateEditorProps {
 }
 
 export function useCreateEditor({ value }: UseCreateEditorProps) {
+  // Ensure we always have a valid initial value
+  const defaultValue = [
+    {
+      type: "p",
+      children: [{ text: "" }],
+    },
+  ];
+
   const editor = usePlateEditor(
     {
       id: "article-editor",
@@ -42,12 +50,12 @@ export function useCreateEditor({ value }: UseCreateEditorProps) {
         // Code blocks
         ...BaseCodeBlockKit,
       ],
-      value: value || [
-        {
-          type: "p",
-          children: [{ text: "" }],
-        },
-      ],
+      value: value || defaultValue,
+      // Add override to prevent DOM conflicts
+      override: {
+        // Ensure proper DOM handling
+        components: {},
+      },
     },
     [value]
   );
