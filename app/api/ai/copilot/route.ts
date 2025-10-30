@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 
 import { generateText } from 'ai';
+import { createGateway } from '@ai-sdk/gateway';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -21,10 +22,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const gatewayProvider = createGateway({ apiKey });
+
     const result = await generateText({
       abortSignal: req.signal,
       maxOutputTokens: 50,
-      model: `openai/${model}`,
+      // Route through the AI Gateway provider instead of direct OpenAI env keys
+      model: gatewayProvider(`openai/${model}`),
       prompt: prompt,
       system,
       temperature: 0.7,

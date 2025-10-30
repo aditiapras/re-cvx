@@ -94,8 +94,7 @@ export function AIMenu() {
         setAnchorElement(anchorDom);
       }, 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streaming]);
+  }, [streaming, api, editor]);
 
   const setOpen = (open: boolean) => {
     if (open) {
@@ -166,8 +165,7 @@ export function AIMenu() {
       const block = editor.api.block({ at: anchorNode[1] });
       setAnchorElement(editor.api.toDOMNode(block![0]!)!);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [isLoading, toolName, mode, editor]);
 
   if (isLoading && mode === 'insert') return null;
 
@@ -222,7 +220,13 @@ export function AIMenu() {
                 }
                 if (isHotkey('enter')(e) && !e.shiftKey && !value) {
                   e.preventDefault();
-                  void api.aiChat.submit(input);
+                  // Default "Ask anything" should generate and insert when not selecting,
+                  // otherwise stay in chat mode for selection-based edits.
+                  const selecting = editor.api.isExpanded();
+                  void api.aiChat.submit(input, {
+                    toolName: 'generate',
+                    mode: selecting ? 'chat' : 'insert',
+                  });
                   setInput('');
                 }
               }}
@@ -265,7 +269,10 @@ const AICommentIcon = () => (
     viewBox="0 0 24 24"
     width="24"
     xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="AI Comment"
   >
+    <title>AI Comment</title>
     <path d="M0 0h24v24H0z" fill="none" stroke="none" />
     <path d="M8 9h8" />
     <path d="M8 13h4.5" />
@@ -381,6 +388,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     onSelect: ({ editor, input }) => {
       void editor.getApi(AIChatPlugin).aiChat.submit(input, {
         prompt: 'Generate a markdown sample',
+        mode: editor.api.isExpanded() ? 'chat' : 'insert',
         toolName: 'generate',
       });
     },
@@ -392,6 +400,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     onSelect: ({ editor, input }) => {
       void editor.getApi(AIChatPlugin).aiChat.submit(input, {
         prompt: 'Generate a mdx sample',
+        mode: editor.api.isExpanded() ? 'chat' : 'insert',
         toolName: 'generate',
       });
     },
@@ -589,8 +598,13 @@ export const AIMenuItems = ({
 
   return (
     <>
-      {menuGroups.map((group, index) => (
-        <CommandGroup key={index} heading={group.heading}>
+      {menuGroups.map((group) => (
+        <CommandGroup
+          key={`${group.heading ?? 'group'}-${group.items
+            .map((i) => i.value)
+            .join('|')}`}
+          heading={group.heading}
+        >
           {group.items.map((menuItem) => (
             <CommandItem
               key={menuItem.value}

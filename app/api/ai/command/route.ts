@@ -30,20 +30,24 @@ import {
 } from './prompts';
 
 export async function POST(req: NextRequest) {
+  // Safely parse the request body and guard against missing ctx
+  const body = await req.json().catch(() => ({}));
+
   const {
     apiKey: key,
     ctx,
     messages: messagesRaw = [],
     model,
-  } = await req.json();
-
-  const { children, selection, toolName: toolNameParam } = ctx;
-
-  const editor = createSlateEditor({
-    plugins: BaseEditorKit,
-    selection,
-    value: children,
-  });
+  } = body as {
+    apiKey?: string;
+    ctx?: {
+      children?: any;
+      selection?: any;
+      toolName?: ToolName;
+    };
+    messages?: ChatMessage[];
+    model?: string;
+  };
 
   const apiKey = key || process.env.AI_GATEWAY_API_KEY;
 
@@ -53,6 +57,26 @@ export async function POST(req: NextRequest) {
       { status: 401 }
     );
   }
+
+  // Provide safe fallbacks if ctx is missing so the endpoint never crashes
+  const defaultChildren = [
+    {
+      type: 'p',
+      children: [{ text: '' }],
+    },
+  ];
+
+  const {
+    children = defaultChildren,
+    selection = null,
+    toolName: toolNameParam,
+  } = ctx ?? {};
+
+  const editor = createSlateEditor({
+    plugins: BaseEditorKit,
+    selection,
+    value: children,
+  });
 
   const isSelecting = editor.api.isExpanded();
 
@@ -72,7 +96,7 @@ export async function POST(req: NextRequest) {
               : ['generate', 'comment'],
             model: gatewayProvider(model || 'google/gemini-2.5-flash'),
             output: 'enum',
-            prompt: getChooseToolPrompt(messagesRaw),
+            prompt: getChooseToolPrompt({ messages: messagesRaw }),
           });
 
           writer.write({
@@ -80,7 +104,7 @@ export async function POST(req: NextRequest) {
             type: 'data-toolName',
           });
 
-          toolName = AIToolName;
+          toolName = AIToolName as ToolName;
         }
 
         const stream = streamText({

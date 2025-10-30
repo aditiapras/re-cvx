@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       new URL("https://scintillating-chinchilla-328.convex.cloud/**"),
+      new URL("https://fiery-vulture-975.convex.cloud/**"),
       new URL("https://images.unsplash.com/**"),
     ],
   },

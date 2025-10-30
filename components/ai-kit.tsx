@@ -38,7 +38,12 @@ export const aiChatPlugin = AIChatPlugin.extend({
     const toolName = usePluginOption(AIChatPlugin, 'toolName');
     useChatChunk({
       onChunk: ({ chunk, isFirst, nodes, text: content }) => {
-        if (isFirst && mode == 'insert') {
+        if (isFirst && mode === 'insert') {
+          // Safely compute insertion path even if selection is null
+          const basePath = editor.selection
+            ? editor.selection.focus.path.slice(0, 1)
+            : (editor.api.blocks().at(-1)?.[1].slice(0, 1) ?? [0]);
+
           editor.tf.withoutSaving(() => {
             editor.tf.insertNodes(
               {
@@ -46,7 +51,7 @@ export const aiChatPlugin = AIChatPlugin.extend({
                 type: getPluginType(editor, KEYS.aiChat),
               },
               {
-                at: PathApi.next(editor.selection!.focus.path.slice(0, 1)),
+                at: PathApi.next(basePath),
               }
             );
           });

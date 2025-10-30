@@ -62,15 +62,27 @@ export default function Informasi() {
       <div className="grid grid-cols-7 gap-4">
         <div className="col-span-5 space-y-4">
           {(data ?? []).map((item) => (
-            <div
+            <Link
               key={item._id}
-              className="p-4 border rounded-xl flex flex-col gap-4 hover:border-muted-foreground transition-all duration-300"
+              href={`/portal/informasi/${item.slug}`}
+              className="block"
             >
+              <div
+                className="p-4 border rounded-xl flex flex-col gap-4 hover:border-muted-foreground transition-all duration-300 cursor-pointer"
+              >
               <div className="flex items-start justify-between">
                 <p className="font-semibold text-xl line-clamp-1">
                   {item.title}
                 </p>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    // Prevent navigating when clicking the more menu
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
                   <MoreVertical />
                 </Button>
               </div>
@@ -117,7 +129,8 @@ export default function Informasi() {
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
+            </Link>
           ))}
         </div>
         <div className="col-span-2">

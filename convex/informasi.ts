@@ -261,6 +261,40 @@ export const listInformasi = query({
   },
 });
 
+// Detail Informasi by slug
+export const getInformasiBySlug = query({
+  args: { slug: v.string() },
+  handler: async (ctx, args) => {
+    const row = await ctx.db
+      .query("informasi")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .first();
+
+    if (!row) return null;
+
+    let coverUrl: string | null = null;
+    if (row.coverImageId) {
+      coverUrl = (await ctx.storage.getUrl(row.coverImageId)) ?? null;
+    } else if (row.type === "galeri" && row.imageIds && row.imageIds.length > 0) {
+      coverUrl = (await ctx.storage.getUrl(row.imageIds[0]!)) ?? null;
+    }
+
+    return {
+      _id: row._id,
+      type: row.type,
+      title: row.title,
+      description: row.description ?? row.meta ?? "",
+      status: row.status,
+      slug: row.slug,
+      createdAt: row.createdAt,
+      category: row.category,
+      tags: row.tags ?? [],
+      coverUrl,
+      content: row.content ?? null,
+    };
+  },
+});
+
 // Create Article/Blog mutation
 export const createArticle = mutation({
   args: {

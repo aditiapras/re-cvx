@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { normalizeNodeId } from "platejs";
 import { Plate, usePlateEditor } from "platejs/react";
 
@@ -13,8 +14,32 @@ export function PlateEditor() {
     value,
   });
 
+  // Initialize global holder for editor content so the form can read it.
+  // The CreateInformasiForm reads window.__plateEditorContent and sends it to Convex.
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        (window as any).__plateEditorContent = JSON.stringify(value);
+      } catch (e) {
+        console.error("Failed to initialize __plateEditorContent", e);
+      }
+    }
+  }, []);
+
   return (
-    <Plate editor={editor}>
+    <Plate
+      editor={editor}
+      onChange={({ value }) => {
+        // Persist latest content globally for the form submission.
+        if (typeof window !== "undefined") {
+          try {
+            (window as any).__plateEditorContent = JSON.stringify(value);
+          } catch (e) {
+            console.error("Failed to serialize Plate value for saving", e);
+          }
+        }
+      }}
+    >
       <EditorContainer className="border rounded-md max-h-[calc(100vh-10rem)] scrollbar-hide">
         <Editor variant="demo" />
       </EditorContainer>
