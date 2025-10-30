@@ -1,4 +1,3 @@
-
 import { BaseAlignKit } from './align-base-kit';
 import { BaseBasicBlocksKit } from './basic-blocks-base-kit';
 import { BaseBasicMarksKit } from './basic-marks-base-kit';

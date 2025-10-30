@@ -1,9 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { useQuery } from "convex/react";
 import {
   Clock,
   MessageCircle,
@@ -11,7 +8,10 @@ import {
   Search,
   ThumbsUp,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useQuery } from "convex/react";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
-import Image from "next/image";
 
 function timeAgo(iso: string) {
   const d = new Date(iso);
@@ -48,31 +48,12 @@ export default function Informasi() {
             sit.
           </p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Buat Postingan</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Pilih jenis informasi</DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <Link href="/portal/informasi/create-general">
-                <Button variant="secondary" className="w-full">
-                  Umum
-                </Button>
-              </Link>
-              <Link href="/portal/informasi/create-gallery">
-                <Button variant="secondary" className="w-full">
-                  Galeri
-                </Button>
-              </Link>
-              <Button variant="secondary" className="w-full" disabled>
-                Artikel/Blog (segera)
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+
+        <Link href="/portal/informasi/create">
+          <Button variant="outline" className="w-full">
+            Buat Informasi
+          </Button>
+        </Link>
       </div>
       <div className="max-w-[71%] relative">
         <Search className="absolute top-1/2 left-2 -translate-y-1/2 size-4" />

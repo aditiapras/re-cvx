@@ -369,3 +369,127 @@ export const createArticleAction = action({
     return result;
   },
 });
+
+// ============================================
+// UNIFIED CREATE INFORMASI (Umum, Galeri, Artikel)
+// ============================================
+
+export const createInformasi = mutation({
+  args: {
+    type: v.string(), // 'umum' | 'galeri' | 'artikel'
+    title: v.string(),
+    meta: v.string(), // SEO meta description
+    content: v.optional(v.string()), // JSON stringified content from Plate editor (required for artikel & galeri)
+    coverImageId: v.optional(v.id("_storage")), // featured image
+    tags: v.array(v.string()), // user-defined tags
+    category: v.string(), // user-defined category
+    status: v.string(), // 'draft' | 'published'
+  },
+  handler: async (ctx, args) => {
+    // Validate type
+    if (!["umum", "galeri", "artikel"].includes(args.type)) {
+      throw new Error("Type harus 'umum', 'galeri', atau 'artikel'");
+    }
+
+    // Validate status
+    if (!["draft", "published"].includes(args.status)) {
+      throw new Error("Status harus 'draft' atau 'published'");
+    }
+
+    // Validate required fields
+    if (!args.title || args.title.trim().length === 0) {
+      throw new Error("Judul tidak boleh kosong");
+    }
+
+    if (!args.meta || args.meta.trim().length === 0) {
+      throw new Error("Meta description tidak boleh kosong");
+    }
+
+    // For artikel & galeri, content is required
+    if ((args.type === "artikel" || args.type === "galeri") && !args.content) {
+      throw new Error(`Konten tidak boleh kosong untuk tipe ${args.type}`);
+    }
+
+    const now = new Date().toISOString();
+    const baseSlug = slugify(args.title);
+    const slug = await ensureUniqueSlug(ctx, baseSlug);
+
+    const publishedAt = args.status === "published" ? now : undefined;
+
+    const docId = await ctx.db.insert("informasi", {
+      type: args.type,
+      title: args.title,
+      description: args.meta, // Store meta in description field for backward compatibility
+      status: args.status,
+      slug,
+      content: args.content,
+      coverImageId: args.coverImageId,
+      imageIds: undefined, // Will be populated from editor content for galeri
+      tags: args.tags,
+      category: args.category,
+      meta: args.meta,
+      metaTitle: undefined,
+      metaDescription: undefined,
+      metaImageId: undefined,
+      publishedAt,
+      createdAt: now,
+      updatedAt: now,
+      authorId: undefined,
+    });
+
+    return { id: docId, slug };
+  },
+});
+
+export const createInformasiAction = action({
+  args: {
+    type: v.string(), // 'umum' | 'galeri' | 'artikel'
+    title: v.string(),
+    meta: v.string(),
+    content: v.optional(v.string()),
+    coverImageStorageId: v.optional(v.id("_storage")),
+    tags: v.array(v.string()),
+    category: v.string(),
+    status: v.string(),
+  },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ id: Id<"informasi">; slug: string }> => {
+    const maxBytes = 5 * 1024 * 1024;
+
+    // Validate cover image if provided
+    if (args.coverImageStorageId) {
+      const coverUrl = await ctx.storage.getUrl(args.coverImageStorageId);
+      if (!coverUrl) {
+        throw new Error("URL cover image tidak tersedia");
+      }
+      const { contentType: coverType, contentLength: coverLength } =
+        await headContent(coverUrl);
+      if (!coverType.startsWith("image/")) {
+        await ctx.storage.delete(args.coverImageStorageId);
+        throw new Error("Cover image harus bertipe gambar");
+      }
+      if (!Number.isNaN(coverLength) && coverLength > maxBytes) {
+        await ctx.storage.delete(args.coverImageStorageId);
+        throw new Error("Ukuran cover image melebihi 5MB");
+      }
+    }
+
+    const result: { id: Id<"informasi">; slug: string } = await ctx.runMutation(
+      api.informasi.createInformasi,
+      {
+        type: args.type,
+        title: args.title,
+        meta: args.meta,
+        content: args.content,
+        coverImageId: args.coverImageStorageId,
+        tags: args.tags,
+        category: args.category,
+        status: args.status,
+      },
+    );
+
+    return result;
+  },
+});

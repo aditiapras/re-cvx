@@ -2,22 +2,22 @@
 
 import type { PlateEditor } from 'platejs/react';
 
-// import { insertCallout } from '@platejs/callout';
+import { insertCallout } from '@platejs/callout';
 import { insertCodeBlock, toggleCodeBlock } from '@platejs/code-block';
-// import { insertDate } from '@platejs/date';
-// import { insertExcalidraw } from '@platejs/excalidraw';
-// import { insertColumnGroup, toggleColumnGroup } from '@platejs/layout';
+import { insertDate } from '@platejs/date';
+import { insertExcalidraw } from '@platejs/excalidraw';
+import { insertColumnGroup, toggleColumnGroup } from '@platejs/layout';
 import { triggerFloatingLink } from '@platejs/link/react';
-// import { insertEquation, insertInlineEquation } from '@platejs/math';
+import { insertEquation, insertInlineEquation } from '@platejs/math';
 import {
-  // insertAudioPlaceholder,
-  // insertFilePlaceholder,
+  insertAudioPlaceholder,
+  insertFilePlaceholder,
   insertMedia,
-  // insertVideoPlaceholder,
+  insertVideoPlaceholder,
 } from '@platejs/media';
-// import { SuggestionPlugin } from '@platejs/suggestion/react';
+import { SuggestionPlugin } from '@platejs/suggestion/react';
 import { TablePlugin } from '@platejs/table/react';
-// import { insertToc } from '@platejs/toc';
+import { insertToc } from '@platejs/toc';
 import {
   type NodeEntry,
   type Path,

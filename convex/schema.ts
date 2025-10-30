@@ -222,12 +222,16 @@ export default defineSchema({
     description: v.optional(v.string()), // enforce required for 'umum' in mutations
     status: v.string(), // 'draft' | 'published' (enforce in mutations)
     slug: v.string(), // UNIQUE (enforce in mutations)
-    content: v.optional(v.any()), // PlateJS JSON value for 'artikel'
-    coverImageId: v.optional(v.id("_storage")), // for 'artikel'
-    imageIds: v.optional(v.array(v.id("_storage"))), // for 'galeri'
+    content: v.optional(v.any()), // PlateJS JSON value for 'artikel' & 'galeri'
+    coverImageId: v.optional(v.id("_storage")), // featured image
+    imageIds: v.optional(v.array(v.id("_storage"))), // for 'galeri' - images from editor
+    tags: v.optional(v.array(v.string())), // user-defined tags
+    category: v.optional(v.string()), // user-defined category
+    meta: v.optional(v.string()), // SEO meta description
     metaTitle: v.optional(v.string()),
     metaDescription: v.optional(v.string()),
     metaImageId: v.optional(v.id("_storage")),
+    publishedAt: v.optional(v.string()), // ISO string
     createdAt: v.string(), // ISO string
     updatedAt: v.string(), // ISO string
     authorId: v.optional(v.id("users")),
